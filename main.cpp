@@ -16,9 +16,9 @@
 #define SLIDER_OFFSET 175
 PolarArm catcher(X_OFFSET, Y_OFFSET, Z_OFFSET, SLIDER_OFFSET);
 
-JointMotor motor_r(&pwm_r, &enc_r);
-JointMotor motor_theta(&pwm_theta, &enc_theta);
-JointMotor motor_phi(&pwm_phi, &enc_phi);
+JointMotor<FnkOut> motor_r(&pwm_r, &enc_r);
+JointMotor<PwmOut> motor_theta(&pwm_theta, &enc_theta);
+JointMotor<PwmOut> motor_phi(&pwm_phi, &enc_phi);
 
 Timer pid_timer;
 

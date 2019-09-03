@@ -12,19 +12,20 @@
 #include "pspad.h"
 #include "module/encoder.h"
 #include "module/SoftPWM.h"
+#include "module/FnkOut.h"
 
 
 Serial pc(USBTX, USBRX);
 
 //Pspad ps;
 
-PwmOut pwm_r(p21);
-PwmOut pwm_theta(p22);
-PwmOut pwm_phi(p23);
+FnkOut pwm_r(p21, p22);
+PwmOut pwm_theta(p23);
+PwmOut pwm_phi(p24);
 
 DigitalOut slider(p26);
 
-SoftPWM servo(p24);
+SoftPWM servo(p25);
 
 #define R_MM_PER_PULSE 10
 #define R_OFFSET 0
