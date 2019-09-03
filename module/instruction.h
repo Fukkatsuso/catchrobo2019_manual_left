@@ -14,24 +14,13 @@
 
 // モードと目標地点の設定
 // 目標地点はフィールド基準で
-class Instruction
+struct Instruction
 {
 public:
-	void set(int mode, float duration, float x, float y, float z) {
-		this->mode = mode;
-		this->duration = duration;
-		set_point(x, y, z);
-	}
+	Instruction(){}
 
-	void set_point(float x, float y, float z) {
-		this->x = x;
-		this->y = y;
-		this->z = z;
-	}
-
-	int get_mode() {
-		return mode;
-	}
+	Instruction(float x, float y, float z, float duration, int mode):
+		x(x), y(y), z(z), duration(duration), mode(mode) {}
 
 	int get_mode_state() {
 		return Mode::state(mode);
@@ -49,28 +38,11 @@ public:
 		return Mode::accelaration(mode);
 	}
 
-	float get_duration() {
-		return duration;
-	}
-
-	float get_x() {
-		return x;
-	}
-
-	float get_y() {
-		return y;
-	}
-
-	float get_z() {
-		return z;
-	}
-
-private:
-	int mode;
-	float duration;
 	float x;
 	float y;
 	float z;
+	float duration;
+	int mode;
 };
 
 

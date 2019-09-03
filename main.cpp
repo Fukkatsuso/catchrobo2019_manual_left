@@ -50,7 +50,6 @@ int main(){
 
 	int mode;
 	float duration;
-	Instruction inst;
 	Queue<Instruction> queue_inst;
 	Queue<Instruction> queue_buff;
 
@@ -70,7 +69,7 @@ int main(){
 	// 指令をqueueに入れ込む
 	mode = Mode::generate(Mode::Init, Mode::Polar, Mode::NonLinearAcc, Mode::Release, Mode::Backward);
 	duration = 1.5;
-	inst.set(mode, duration, INIT_X, INIT_Y, INIT_Z);
+	Instruction inst(INIT_X, INIT_Y, INIT_Z, duration, mode);
 	queue_inst.push(inst);
 
 	wait_ms(300);
@@ -82,10 +81,10 @@ int main(){
 	motor_phi.pid_setting(pid_gain_phi, &pid_timer);
 
 	inst = queue_inst.front();
-	mode = inst.get_mode();
-	catcher.restart(inst.get_x(), inst.get_y(), inst.get_z());
-	catcher.set_duration(inst.get_duration());
-	catcher.set_mode(inst.get_mode());
+	mode = inst.mode;
+	catcher.restart(inst.x, inst.y, inst.z);
+	catcher.set_duration(inst.duration);
+	catcher.set_mode(inst.mode);
 
 	slider.write(0);
 	led_all(0);
@@ -113,9 +112,9 @@ int main(){
 		y_now += Y_OFFSET;
 		z_now += Z_OFFSET;
 
-		x_cnt_arrive = counter_update(x_cnt_arrive, x_now, inst.get_x(), BUFF_ARRIVE);
-		y_cnt_arrive = counter_update(y_cnt_arrive, y_now, inst.get_y(), BUFF_ARRIVE);
-		z_cnt_arrive = counter_update(z_cnt_arrive, z_now, inst.get_z(), BUFF_ARRIVE);
+		x_cnt_arrive = counter_update(x_cnt_arrive, x_now, inst.x, BUFF_ARRIVE);
+		y_cnt_arrive = counter_update(y_cnt_arrive, y_now, inst.y, BUFF_ARRIVE);
+		z_cnt_arrive = counter_update(z_cnt_arrive, z_now, inst.z, BUFF_ARRIVE);
 
 		// リトライに備えて実行済みinstをバッファに保存
 		// 初期位置に戻ったらqueue_buffをクリア
@@ -134,9 +133,9 @@ int main(){
 			}
 
 			inst = queue_inst.front();
-			catcher.restart(inst.get_x(), inst.get_y(), inst.get_z());
-			catcher.set_duration(inst.get_duration());
-			catcher.set_mode(inst.get_mode());
+			catcher.restart(inst.x, inst.y, inst.z);
+			catcher.set_duration(inst.duration);
+			catcher.set_mode(inst.mode);
 		}
 
 		if (pc.readable()) {
