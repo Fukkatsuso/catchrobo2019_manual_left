@@ -27,8 +27,10 @@ class PolarArm
 {
 public:
 	PolarArm(float offset_x, float offset_y, float offset_z, float offset_slider);
-	bool set_target(float target_x, float target_y, float target_z,
-			float duration, int mode);
+	void restart(float target_x, float target_y, float target_z);
+	void set_target(float target_x, float target_y, float target_z);
+	void set_duration(float duration);
+	void set_mode(int mode);
 
 	void calc_next();
 
@@ -37,21 +39,17 @@ public:
 	float get_phi_next();
 
 protected:
-	void update_target(float target_x, float target_y, float target_z);
-	void calc_vel_cartesian(float now_t);
-	void calc_vel_polar(float now_t);
+	void calc_pos_cartesian(float now_t);
+	void calc_pos_polar(float now_t);
 
 private:
 	Timer clock;
-	float clock_prev;
 
 	struct {
-		float now;
 		float next;
 		float start;
 		float target;
 		float dist;
-		float vel;
 	} x, y, z,
 		r, theta, phi;
 

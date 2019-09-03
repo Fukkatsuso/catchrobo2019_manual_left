@@ -9,11 +9,11 @@
 
 
 
-JointMotor::JointMotor(PwmOut *motor, Encoder *encoder)
+JointMotor::JointMotor(PwmOut* motor, Encoder* encoder):
+	motor(motor), encoder(encoder)
 {
-	this->motor = motor;
-	this->encoder = encoder;
 	motor->period_us(50);
+	motor->write(0.5);
 }
 
 

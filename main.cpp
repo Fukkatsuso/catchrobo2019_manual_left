@@ -62,6 +62,11 @@ int main(){
 	float y_now;
 	float z_now;
 
+	// pspadの入力で微調整する量
+	float x_adjust;
+	float y_adjust;
+	float z_adjust;
+
 	// 指令をqueueに入れ込む
 	mode = Mode::generate(Mode::Init, Mode::Polar, Mode::NonLinearAcc, Mode::Release, Mode::Backward);
 	duration = 1.5;
@@ -78,8 +83,9 @@ int main(){
 
 	inst = queue_inst.front();
 	mode = inst.get_mode();
-	catcher.set_target(inst.get_x(), inst.get_y(), inst.get_z(),
-			inst.get_duration(), inst.get_mode());
+	catcher.restart(inst.get_x(), inst.get_y(), inst.get_z());
+	catcher.set_duration(inst.get_duration());
+	catcher.set_mode(inst.get_mode());
 
 	slider.write(0);
 	led_all(0);
@@ -103,10 +109,13 @@ int main(){
 
 		polar2cartesian(motor_r.get_now(), motor_theta.get_now(), motor_phi.get_now(),
 				&x_now, &y_now, &z_now);
+		x_now += X_OFFSET;
+		y_now += Y_OFFSET;
+		z_now += Z_OFFSET;
 
-		x_cnt_arrive = counter_update(x_cnt_arrive, x_now, inst.get_x() - X_OFFSET, BUFF_ARRIVE);
-		y_cnt_arrive = counter_update(y_cnt_arrive, y_now, inst.get_y() - Y_OFFSET, BUFF_ARRIVE);
-		z_cnt_arrive = counter_update(z_cnt_arrive, z_now, inst.get_z() - Z_OFFSET, BUFF_ARRIVE);
+		x_cnt_arrive = counter_update(x_cnt_arrive, x_now, inst.get_x(), BUFF_ARRIVE);
+		y_cnt_arrive = counter_update(y_cnt_arrive, y_now, inst.get_y(), BUFF_ARRIVE);
+		z_cnt_arrive = counter_update(z_cnt_arrive, z_now, inst.get_z(), BUFF_ARRIVE);
 
 		// リトライに備えて実行済みinstをバッファに保存
 		// 初期位置に戻ったらqueue_buffをクリア
@@ -117,11 +126,17 @@ int main(){
 			else {
 				queue_buff.push(inst);
 			}
-			if (queue_inst.length() > 0) queue_inst.pop();
+			if (queue_inst.length() > 0) {
+				queue_inst.pop();
+				x_adjust = 0;
+				y_adjust = 0;
+				z_adjust = 0;
+			}
 
 			inst = queue_inst.front();
-			catcher.set_target(inst.get_x(), inst.get_y(), inst.get_z(),
-					inst.get_duration(), inst.get_mode());
+			catcher.restart(inst.get_x(), inst.get_y(), inst.get_z());
+			catcher.set_duration(inst.get_duration());
+			catcher.set_mode(inst.get_mode());
 		}
 
 		if (pc.readable()) {

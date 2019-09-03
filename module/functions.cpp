@@ -33,7 +33,7 @@ inline float sqrt2(float a, float b)
 }
 
 
-float sin_accel(float period, float dist, float now_t)
+float sin_accel_vel(float period, float dist, float now_t)
 {
 	if (now_t > period) return 0;
 
@@ -42,10 +42,28 @@ float sin_accel(float period, float dist, float now_t)
 }
 
 
-float linear_accel(float period, float dist, float now_t)
+float linear_accel_vel(float period, float dist, float now_t)
 {
 	if (now_t > period) return 0;
+
 	return dist / period;
+}
+
+
+float sin_accel_pos(float period, float dist, float now_t)
+{
+	if (now_t > period) return dist;
+
+	float sine = sin(2.0 * M_PI * now_t / period);
+	return (dist / period) * (now_t - (period / (2.0 * M_PI)) * sine);
+}
+
+
+float linear_accel_pos(float period, float dist, float now_t)
+{
+	if (now_t > period) return dist;
+
+	return dist * now_t / period;
 }
 
 
