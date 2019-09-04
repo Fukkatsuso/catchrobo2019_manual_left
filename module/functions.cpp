@@ -8,17 +8,20 @@
 #include "functions.h"
 
 
-template <typename T>
-T limit(T value, T max, T min)
+int limit(int value, int max, int min)
 {
 	if (value > max) return max;
 	else if (value < min) return min;
 	return value;
 }
 
-template int limit<int> (int value, int max, int min);
-template float limit<float> (float value, float max, float min);
-template double limit<double> (double value, double max, double min);
+
+float limit(float value, float max, float min)
+{
+	if (value > max) return max;
+	else if (value < min) return min;
+	return value;
+}
 
 
 inline float sqrt3(float a, float b, float c)

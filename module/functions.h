@@ -11,9 +11,8 @@
 #include "mbed.h"
 
 
-//limit
-template <typename T>
-T limit(T value, T max, T min);
+int limit(int value, int max, int min);
+float limit(float value, float max, float min);
 
 
 inline float sqrt3(float a, float b, float c);

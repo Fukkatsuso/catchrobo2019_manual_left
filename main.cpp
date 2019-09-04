@@ -73,7 +73,6 @@ int main(){
 	queue_inst.push(inst);
 
 	wait_ms(300);
-	servo.period_ms(20);
 	pc.baud(921600);
 
 	motor_r.pid_setting(pid_gain_r, &pid_timer);
@@ -104,7 +103,11 @@ int main(){
 		motor_theta.move_to(theta_next);
 		motor_phi.move_to(phi_next);
 
+		// y方向スライド
 		slider.write(Mode::slider(mode) >> 1);
+
+		// ハンドのサーボ
+		servo.keep(theta_next);
 
 		polar2cartesian(motor_r.get_now(), motor_theta.get_now(), motor_phi.get_now(),
 				&x_now, &y_now, &z_now);

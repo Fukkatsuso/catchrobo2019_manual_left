@@ -13,6 +13,7 @@
 #include "module/encoder.h"
 #include "module/SoftPWM.h"
 #include "module/FnkOut.h"
+#include "module/hand_servo.h"
 
 
 Serial pc(USBTX, USBRX);
@@ -25,7 +26,12 @@ PwmOut pwm_phi(p24);
 
 DigitalOut slider(p26);
 
-SoftPWM servo(p25);
+#define SERVO_MAX 2500
+#define SERVO_MIN 500
+#define SERVO_OFFSET_DEGREE 90.0
+inline float degree2rad(float degree) { return degree / (2.0 * M_PI); }
+//SoftPWM servo(p25);
+HandServo<SoftPWM> servo(p25, (SERVO_MAX-SERVO_MIN)/(M_PI), degree2rad(SERVO_OFFSET_DEGREE));
 
 #define R_MM_PER_PULSE 10
 #define R_OFFSET 0

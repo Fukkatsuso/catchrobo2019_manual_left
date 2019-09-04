@@ -13,7 +13,7 @@
 #include "pid.h"
 
 
-extern float limit(float value, float max, float min);
+//extern float limit(float value, float max, float min);
 
 
 // - example1
@@ -48,7 +48,7 @@ public:
 	}
 
 	float move_to(float target) {
-		//	target = limit(target, dist_max, dist_min);
+//		target = limit(target, dist_max, dist_min);
 		float now = encoder->get_distance();
 		float duty = 0.5 + pid.calc(now, target);
 		motor->write(duty);
