@@ -108,14 +108,14 @@ void PolarArm::calc_pos_cartesian(float now_t)
 {
 	switch (mode_acc) {
 	case Mode::LinearAcc:
-		x.next = linear_accel_pos(duration, x.dist, now_t);
-		y.next = linear_accel_pos(duration, y.dist, now_t);
-		z.next = linear_accel_pos(duration, z.dist, now_t);
+		x.next = x.start + linear_accel_pos(duration, x.dist, now_t);
+		y.next = y.start + linear_accel_pos(duration, y.dist, now_t);
+		z.next = z.start + linear_accel_pos(duration, z.dist, now_t);
 		break;
 	case Mode::NonLinearAcc:
-		x.next = sin_accel_pos(duration, x.dist, now_t);
-		y.next = sin_accel_pos(duration, y.dist, now_t);
-		z.next = sin_accel_pos(duration, z.dist, now_t);
+		x.next = x.start + sin_accel_pos(duration, x.dist, now_t);
+		y.next = y.start + sin_accel_pos(duration, y.dist, now_t);
+		z.next = z.start + sin_accel_pos(duration, z.dist, now_t);
 		break;
 	}
 }
@@ -125,14 +125,14 @@ void PolarArm::calc_pos_polar(float now_t)
 {
 	switch (mode_acc) {
 	case Mode::LinearAcc:
-		r.next 		= linear_accel_pos(duration, r.dist, now_t);
-		theta.next 	= linear_accel_pos(duration, theta.dist, now_t);
-		phi.next 	= linear_accel_pos(duration, phi.dist, now_t);
+		r.next 		= r.start + linear_accel_pos(duration, r.dist, now_t);
+		theta.next 	= theta.start + linear_accel_pos(duration, theta.dist, now_t);
+		phi.next 	= phi.start + linear_accel_pos(duration, phi.dist, now_t);
 		break;
 	case Mode::NonLinearAcc:
-		r.next 		= sin_accel_pos(duration, r.dist, now_t);
-		theta.next 	= sin_accel_pos(duration, theta.dist, now_t);
-		phi.next 	= sin_accel_pos(duration, phi.dist, now_t);
+		r.next 		= r.start + sin_accel_pos(duration, r.dist, now_t);
+		theta.next 	= theta.start + sin_accel_pos(duration, theta.dist, now_t);
+		phi.next 	= phi.start + sin_accel_pos(duration, phi.dist, now_t);
 		break;
 	}
 }
