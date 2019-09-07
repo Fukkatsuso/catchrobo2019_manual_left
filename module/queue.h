@@ -45,6 +45,7 @@ class Queue
 {
 public:
 	Queue() {
+		size = 0;
 		clear();
 	}
 
@@ -56,7 +57,14 @@ public:
 		return (size == 0);
 	}
 
+	// マイコンでは動作保証できない
 	void clear() {
+		if (size == 0) {
+			head = NULL;
+			tail = NULL;
+			return;
+		}
+
 		QueueNode<T>* node = head;
 		QueueNode<T>* next_node;
 
