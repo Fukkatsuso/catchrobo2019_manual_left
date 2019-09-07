@@ -128,17 +128,20 @@ int main(){
 			else {
 				queue_buff.push(inst);
 			}
-			if (queue_inst.length() > 0) {
+
+			if (queue_inst.length() > 1) {
 				queue_inst.pop();
 				x_adjust = 0;
 				y_adjust = 0;
 				z_adjust = 0;
+				x_cnt_arrive = 0;
+				y_cnt_arrive = 0;
+				z_cnt_arrive = 0;
+				inst = queue_inst.front();
+				catcher.restart(inst.x, inst.y, inst.z);
+				catcher.set_duration(inst.duration);
+				catcher.set_mode(inst.mode);
 			}
-
-			inst = queue_inst.front();
-			catcher.restart(inst.x, inst.y, inst.z);
-			catcher.set_duration(inst.duration);
-			catcher.set_mode(inst.mode);
 		}
 
 		if (pc.readable()) {
