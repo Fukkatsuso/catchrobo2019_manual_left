@@ -61,11 +61,11 @@ void PolarArm::set_duration(float duration)
 }
 
 
-void PolarArm::set_mode(int mode)
+void PolarArm::set_mode(enum Mode::Coordinate coord, enum Mode::Accelaration acc, enum Mode::Slider slider)
 {
-	mode_coord = (Mode::Coordinate)Mode::coordinate(mode);
-	mode_acc = (Mode::Accelaration)Mode::accelaration(mode);
-	mode_slider = (Mode::Slider)Mode::slider(mode);
+	mode_coord = coord;
+	mode_acc = acc;
+	mode_slider = slider;
 }
 
 

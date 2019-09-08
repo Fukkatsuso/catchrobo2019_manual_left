@@ -30,7 +30,7 @@ public:
 	void restart(float target_x, float target_y, float target_z);
 	void set_target(float target_x, float target_y, float target_z);
 	void set_duration(float duration);
-	void set_mode(int mode);
+	void set_mode(enum Mode::Coordinate coord, enum Mode::Accelaration acc, enum Mode::Slider slider);
 
 	void calc_next();
 

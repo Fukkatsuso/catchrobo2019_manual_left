@@ -48,7 +48,6 @@ int main(){
 	int y_cnt_arrive = 0;
 	int z_cnt_arrive = 0;
 
-	int mode;
 	float duration;
 	Queue<Instruction> queue_inst;
 	Queue<Instruction> queue_buff;
@@ -67,9 +66,9 @@ int main(){
 	float z_adjust;
 
 	// 指令をqueueに入れ込む
-	mode = Mode::generate(Mode::Init, Mode::Polar, Mode::NonLinearAcc, Mode::Release, Mode::Backward);
-	duration = 1.5;
-	Instruction inst(INIT_X, INIT_Y, INIT_Z, duration, mode);
+	duration = 1;
+	Instruction inst(INIT_X, INIT_Y, INIT_Z, duration,
+			Mode::Init, Mode::Polar, Mode::NonLinearAcc, Mode::Release, Mode::Backward);
 	queue_inst.push(inst);
 
 	wait_ms(300);
@@ -80,10 +79,9 @@ int main(){
 	motor_phi.pid_setting(pid_gain_phi, &pid_timer);
 
 	inst = queue_inst.front();
-	mode = inst.mode;
 	catcher.restart(inst.x, inst.y, inst.z);
 	catcher.set_duration(inst.duration);
-	catcher.set_mode(inst.mode);
+	catcher.set_mode(inst.coord, inst.acc, inst.slider);
 
 	slider.write(0);
 	led_all(0);
@@ -104,7 +102,7 @@ int main(){
 		motor_phi.move_to(phi_next);
 
 		// y方向スライド
-		slider.write(Mode::slider(mode) >> 1);
+		slider.write(inst.slider);
 
 		// ハンドのサーボ
 		servo.keep(theta_next);
@@ -122,7 +120,7 @@ int main(){
 		if (has_arrived(x_cnt_arrive, y_cnt_arrive, z_cnt_arrive)) {
 			// リトライに備えて実行済みinstをバッファに保存
 			// 初期位置に戻ったらqueue_buffをクリア
-			if (inst.get_mode_state() == Mode::Init) {
+			if (inst.state == Mode::Init) {
 				queue_buff.clear();
 			}
 			else {
@@ -140,7 +138,7 @@ int main(){
 				inst = queue_inst.front();
 				catcher.restart(inst.x, inst.y, inst.z);
 				catcher.set_duration(inst.duration);
-				catcher.set_mode(inst.mode);
+				catcher.set_mode(inst.coord, inst.acc, inst.slider);
 			}
 		}
 

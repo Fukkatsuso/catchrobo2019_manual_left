@@ -19,30 +19,25 @@ struct Instruction
 public:
 	Instruction(){}
 
-	Instruction(float x, float y, float z, float duration, int mode):
-		x(x), y(y), z(z), duration(duration), mode(mode) {}
-
-	int get_mode_state() {
-		return Mode::state(mode);
-	}
-
-	int get_mode_suction() {
-		return Mode::suction(mode);
-	}
-
-	int get_mode_coord() {
-		return Mode::coordinate(mode);
-	}
-
-	int get_mode_acc() {
-		return Mode::accelaration(mode);
-	}
+	Instruction(float x, float y, float z, float duration,
+			enum Mode::State state,
+			enum Mode::Coordinate coord,
+			enum Mode::Accelaration acc,
+			enum Mode::Suction suction,
+			enum Mode::Slider slider):
+		x(x), y(y), z(z), duration(duration),
+		state(state), coord(coord), acc(acc), suction(suction), slider(slider)
+		{}
 
 	float x;
 	float y;
 	float z;
 	float duration;
-	int mode;
+	Mode::State state;
+	Mode::Coordinate coord;
+	Mode::Accelaration acc;
+	Mode::Suction suction;
+	Mode::Slider slider;
 };
 
 
