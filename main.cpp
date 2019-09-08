@@ -9,16 +9,16 @@
 
 
 // (アームの取り付け位置のオフセット + 土台中心から駆動部基準点までのオフセット) : フィールド左端手前が基準
-#define X_OFFSET (0 + 0)
-#define Y_OFFSET (0 + 0)
-#define Z_OFFSET (0 + 0)
+#define X_OFFSET 234
+#define Y_OFFSET -127
+#define Z_OFFSET (633.5+75.8)
 // スライダーの移動距離
 #define SLIDER_OFFSET 175
 PolarArm catcher(X_OFFSET, Y_OFFSET, Z_OFFSET, SLIDER_OFFSET);
 
-JointMotor<FnkOut> motor_r(&pwm_r, &enc_r);
-JointMotor<PwmOut> motor_theta(&pwm_theta, &enc_theta);
-JointMotor<PwmOut> motor_phi(&pwm_phi, &enc_phi);
+JointMotor<FnkOut> motor_r(&pwm_r, &enc_r, 1);
+JointMotor<PwmOut> motor_theta(&pwm_theta, &enc_theta, 1);
+JointMotor<PwmOut> motor_phi(&pwm_phi, &enc_phi, 1);
 
 Timer pid_timer;
 
@@ -119,9 +119,9 @@ int main(){
 		y_cnt_arrive = counter_update(y_cnt_arrive, y_now, inst.y, BUFF_ARRIVE);
 		z_cnt_arrive = counter_update(z_cnt_arrive, z_now, inst.z, BUFF_ARRIVE);
 
-		// リトライに備えて実行済みinstをバッファに保存
-		// 初期位置に戻ったらqueue_buffをクリア
 		if (has_arrived(x_cnt_arrive, y_cnt_arrive, z_cnt_arrive)) {
+			// リトライに備えて実行済みinstをバッファに保存
+			// 初期位置に戻ったらqueue_buffをクリア
 			if (inst.get_mode_state() == Mode::Init) {
 				queue_buff.clear();
 			}

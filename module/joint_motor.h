@@ -19,19 +19,19 @@
 // - example1
 // PwmOut pwm(p21);
 // Encoder enc(p13, p14);
-// JointMotor<PwmOut> motor(&pwm, &enc);
+// JointMotor<PwmOut> motor(&pwm, &enc, 1); // 正転duty:0.5~0.9
 //
 // - example2
 // FnkOut pwm(p21, p22);
 // Encoder enc(p13, p14);
-// JointMotor<FnkOut> motor(&pwm, &enc);
+// JointMotor<FnkOut> motor(&pwm, &enc, -1); // 正転duty:0.5~0.1
 
 template <class T>
 class JointMotor
 {
 public:
-	JointMotor(T* motor, Encoder* encoder) :
-		motor(motor), encoder(encoder) {
+	JointMotor(T* motor, Encoder* encoder, int rot) :
+		motor(motor), encoder(encoder), rot(rot) {
 		motor->period_us(50);
 		motor->write(0.5);
 	}
@@ -50,7 +50,7 @@ public:
 	float move_to(float target) {
 //		target = limit(target, dist_max, dist_min);
 		float now = encoder->get_distance();
-		float duty = 0.5 + pid.calc(now, target);
+		float duty = 0.5 + rot * pid.calc(now, target);
 		motor->write(duty);
 
 		return duty;
@@ -65,6 +65,7 @@ private:
 	Encoder *encoder;
 	PID pid;
 
+	const int rot;
 	float dist_max;
 	float dist_min;
 };
