@@ -6,14 +6,9 @@
 #include "module/mode.h"
 #include "module/instruction.h"
 #include "module/queue.h"
+#include "default_instructions.h"
 
 
-// (アームの取り付け位置のオフセット + 土台中心から駆動部基準点までのオフセット) : フィールド左端手前が基準
-#define X_OFFSET 234
-#define Y_OFFSET -127
-#define Z_OFFSET (633.5+75.8)
-// スライダーの移動距離
-#define SLIDER_OFFSET 175
 PolarArm catcher(X_OFFSET, Y_OFFSET, Z_OFFSET, SLIDER_OFFSET);
 
 JointMotor<FnkOut> motor_r(&pwm_r, &enc_r, 1);
@@ -77,9 +72,10 @@ int main(){
 	Queue<Instruction> queue_buff;
 
 	// 指令をqueueに入れ込む
-	Instruction inst(INIT_X, INIT_Y, INIT_Z, 1,
-			Mode::Init, Mode::Polar, Mode::NonLinearAcc, Mode::Release, Mode::Backward);
-	queue_inst.push(inst);
+	Instruction inst;
+	for (int i=0; i<INST_NUM; i++) {
+		queue_inst.push(default_inst[i]);
+	}
 
 	led_all(1);
 
@@ -132,6 +128,11 @@ int main(){
 		x.cnt_arrive = counter_update(x.cnt_arrive, x.pos_now, inst.x, BUFF_ARRIVE);
 		y.cnt_arrive = counter_update(y.cnt_arrive, y.pos_now, inst.y, BUFF_ARRIVE);
 		z.cnt_arrive = counter_update(z.cnt_arrive, z.pos_now, inst.z, BUFF_ARRIVE);
+		if (inst.state == Mode::Stay) {
+			x.cnt_arrive = 0;
+			y.cnt_arrive = 0;
+			z.cnt_arrive = 0;
+		}
 
 		if (has_arrived(x.cnt_arrive, y.cnt_arrive, z.cnt_arrive)) {
 			// リトライに備えて実行済みinstをバッファに保存
@@ -155,6 +156,8 @@ int main(){
 				catcher.restart(inst.x, inst.y, inst.z);
 				catcher.set_duration(inst.duration);
 				catcher.set_mode(inst.coord, inst.acc, inst.slider);
+				timer.reset();
+				timer.start();
 			}
 		}
 
