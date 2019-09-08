@@ -38,10 +38,10 @@ int counter_update(int counter, float now, float target, float buff);
 
 
 //cartesian -> polar
-void cartesian2polar(float x, float y, float z, float* r, float* theta, float* phi);
+void cartesian2polar(float x, float y, float z, float phi_radius, float* r, float* theta, float* phi);
 
 
-void polar2cartesian(float r, float theta, float phi, float* x, float* y, float* z);
+void polar2cartesian(float r, float theta, float phi, float phi_radius, float* x, float* y, float* z);
 
 
 #endif /* FUNCTIONS_H_ */

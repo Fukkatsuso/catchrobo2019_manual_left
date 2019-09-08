@@ -9,7 +9,7 @@
 #include "default_instructions.h"
 
 
-PolarArm catcher(X_OFFSET, Y_OFFSET, Z_OFFSET, SLIDER_OFFSET);
+PolarArm catcher(X_OFFSET, Y_OFFSET, Z_OFFSET, PHI_RADIUS, SLIDER_OFFSET);
 
 JointMotor<FnkOut> motor_r(&pwm_r, &enc_r, 1);
 JointMotor<PwmOut> motor_theta(&pwm_theta, &enc_theta, 1);
@@ -119,7 +119,7 @@ int main(){
 		r.pos_now = motor_r.get_now();
 		theta.pos_now = motor_theta.get_now();
 		phi.pos_now = motor_phi.get_now();
-		polar2cartesian(r.pos_now, theta.pos_now, phi.pos_now,
+		polar2cartesian(r.pos_now, theta.pos_now, phi.pos_now, PHI_RADIUS,
 				&(x.pos_now), &(y.pos_now), &(z.pos_now));
 		x.pos_now += X_OFFSET;
 		y.pos_now += Y_OFFSET;
@@ -153,16 +153,20 @@ int main(){
 				y.cnt_arrive = 0;
 				z.cnt_arrive = 0;
 				inst = queue_inst.front();
-				catcher.restart(inst.x, inst.y, inst.z);
 				catcher.set_duration(inst.duration);
 				catcher.set_mode(inst.coord, inst.acc, inst.slider);
+				catcher.restart(inst.x, inst.y, inst.z);
 				timer.reset();
 				timer.start();
 			}
 		}
 
 		pc.printf("now: %2.2f  ", now_t);
-		pc.printf("x: %4.1f->   y: %4.1f  z: %4.1f  ", x.pos_now, y.pos_now, z.pos_now);
+		pc.printf("x: %4.1f   y: %4.1f  z: %4.1f  ", x.pos_now, y.pos_now, z.pos_now);
+		pc.printf("r: %4.1f->%4.1f  theta: %3.1f->%3.1f  phi: %3.1f->%3.1f  ",
+				r.pos_now, r.pos_next,
+				rad2degree(theta.pos_now), rad2degree(theta.pos_next),
+				rad2degree(phi.pos_now), rad2degree(phi.pos_next));
 		pc.printf("\r\n");
 	}
 

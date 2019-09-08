@@ -8,8 +8,8 @@
 #include "polar_arm.h"
 
 
-PolarArm::PolarArm(float offset_x, float offset_y, float offset_z, float offset_slider) :
-	x_offset(offset_x), y_offset(offset_y), z_offset(offset_z), slider_offset(offset_slider)
+PolarArm::PolarArm(float offset_x, float offset_y, float offset_z, float phi_radius, float offset_slider) :
+	x_offset(offset_x), y_offset(offset_y), z_offset(offset_z), phi_radius(phi_radius), slider_offset(offset_slider)
 {
 	x.target = INIT_X - x_offset;
 	y.target = INIT_Y - y_offset;
@@ -26,7 +26,7 @@ void PolarArm::restart(float target_x, float target_y, float target_z)
 	x.start = x.target;
 	y.start = y.target;
 	z.start = z.target;
-	cartesian2polar(x.start, y.start, z.start, &r.start, &theta.start, &phi.start);
+	cartesian2polar(x.start, y.start, z.start, phi_radius, &r.start, &theta.start, &phi.start);
 
 	// 目標位置の更新
 	// offset処理も忘れずに
@@ -48,7 +48,7 @@ void PolarArm::set_target(float target_x, float target_y, float target_z)
 	y.dist = y.target - y.start;
 	z.dist = z.target - z.start;
 
-	cartesian2polar(x.target, y.target, z.target, &r.target, &theta.target, &phi.target);
+	cartesian2polar(x.target, y.target, z.target, phi_radius, &r.target, &theta.target, &phi.target);
 	r.dist 		= r.target - r.start;
 	theta.dist 	= theta.target - theta.start;
 	phi.dist 	= phi.target - phi.start;
@@ -77,7 +77,7 @@ void PolarArm::calc_next()
 	switch (mode_coord) {
 	case Mode::Cartesian:
 		calc_pos_cartesian(clock_now);
-		cartesian2polar(x.next, y.next, z.next, &r.next, &theta.next, &phi.next);
+		cartesian2polar(x.next, y.next, z.next, phi_radius, &r.next, &theta.next, &phi.next);
 		break;
 	case Mode::Polar:
 		calc_pos_polar(clock_now);

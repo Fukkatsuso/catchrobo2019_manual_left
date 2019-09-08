@@ -20,6 +20,8 @@ public:
 	float get_distance();
 
 private:
+	DigitalIn* pinA;
+	DigitalIn* pinB;
 	const float pulse2mm;
 	float offset;
 };

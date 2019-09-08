@@ -15,9 +15,9 @@
 
 // x,y,zの初期値
 // フィールド基準
-#define INIT_X 100
-#define INIT_Y 100
-#define INIT_Z 100
+#define INIT_X 346
+#define INIT_Y -127
+#define INIT_Z 633.5+75.8
 
 /*
  * input  : 目標座標
@@ -26,7 +26,7 @@
 class PolarArm
 {
 public:
-	PolarArm(float offset_x, float offset_y, float offset_z, float offset_slider);
+	PolarArm(float offset_x, float offset_y, float offset_z, float phi_radius, float offset_slider);
 	void restart(float target_x, float target_y, float target_z);
 	void set_target(float target_x, float target_y, float target_z);
 	void set_duration(float duration);
@@ -61,6 +61,7 @@ private:
 	float x_offset;
 	float y_offset;
 	float z_offset;
+	float phi_radius;
 	const float slider_offset;
 };
 

@@ -12,6 +12,10 @@
 Encoder::Encoder(PinName channelA, PinName channelB, const float pulse2mm, float offset = 0):
 	QEI(channelA, channelB, NC, 624, QEI::X4_ENCODING), pulse2mm(pulse2mm)
 {
+	pinA = new DigitalIn(channelA);
+	pinB = new DigitalIn(channelB);
+	pinA->mode(PullUp);
+	pinB->mode(PullUp);
 	set_offset(offset);
 	QEI::reset();
 }

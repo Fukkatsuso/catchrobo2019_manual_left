@@ -79,18 +79,33 @@ int counter_update(int counter, float now, float target, float buff)
 
 
 //定義域要再考
-void cartesian2polar(float x, float y, float z, float* r, float* theta, float* phi)
+void cartesian2polar(float x, float y, float z, float phi_radius, float* r, float* theta, float* phi)
 {
-	*r = sqrt3(x, y, z);
-	*theta = acos(z / (*r)); // 0~PI
-	if (x == 0 && y == 0);
-	else *phi = acos(x / sqrt2(x, y));  //default:-PI~PI
+	if (x == 0) *theta = M_PI / 2.0;
+	else if (y == 0 && x > 0) *theta = 0;
+	else if (y == 0 && x < 0) *theta = M_PI;
+	else *theta = atan2(y, x);
+
+	// phiに回転角が存在するので極座標とは異なる計算法になる
+	float R = sqrt2(x, y);
+	float s, t;
+	if (z != 0) {
+		float D = phi_radius / sqrt3(x, y, z);
+		s = D * (D * R + z * sqrt(1 - D * D));
+		t = (phi_radius * phi_radius - R * s) / z;
+	}
+	else {
+		s = phi_radius * phi_radius / R;
+		t = phi_radius * sqrt(R * R - phi_radius * phi_radius) / R;
+	}
+	*r = sqrt2(R - s, z - t);
+	*phi = M_PI - atan2(R - s, z - t);
 }
 
 
-void polar2cartesian(float r, float theta, float phi, float* x, float* y, float* z)
+void polar2cartesian(float r, float theta, float phi, float phi_radius, float* x, float* y, float* z)
 {
-	*x = r * sin(theta) * cos(phi);
-	*y = r * sin(theta) * sin(phi);
-	*z = r * cos(theta);
+	*x = (r - phi_radius) * cos(phi) * cos(theta);
+	*y = (r - phi_radius) * cos(phi) * sin(theta);
+	*z = - (r + phi_radius) * cos(phi);
 }
