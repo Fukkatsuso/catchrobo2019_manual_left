@@ -14,6 +14,7 @@
 #include "module/SoftPWM.h"
 #include "module/FnkOut.h"
 #include "module/hand_servo.h"
+#include "module/fan.h"
 
 
 Serial pc(USBTX, USBRX);
@@ -25,14 +26,17 @@ PwmOut pwm_theta(p23);
 PwmOut pwm_phi(p22);
 
 DigitalOut slider(p5);
+DigitalOut one_holder(p6);
+DigitalOut work_holder(p20);
+DigitalOut shooter(p8);
 
-#define SERVO_MAX 2500
-#define SERVO_MIN 500
-#define SERVO_OFFSET_DEGREE 90.0
+#define SERVO_OFFSET (M_PI/2.0)
 inline float degree2rad(float degree) { return M_PI * degree / 180.0; }
 inline float rad2degree(float rad) { return 180.0 * rad / M_PI; }
-//SoftPWM servo(p25);
-HandServo<SoftPWM> servo(p26, (SERVO_MAX-SERVO_MIN)/(M_PI), degree2rad(SERVO_OFFSET_DEGREE));
+//HandServo<SoftPWM> servo(p26, 0, M_PI/2.0, 950, 1800, SERVO_OFFSET);
+HandServo<SoftPWM> servo(p26, 0, M_PI/2.0, 900, 1850, SERVO_OFFSET);
+
+Fan<SoftPWM> fan(p21);
 
 //メインアームの歯
 //Φが75:15

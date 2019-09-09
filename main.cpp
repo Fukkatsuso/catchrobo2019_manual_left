@@ -68,6 +68,9 @@ int main(){
 	Monitor_polar theta(0.9, 0, 0.06);
 	Monitor_polar phi(0.6, 0, 0.01);
 
+	int servo_duty;
+	int fan_duty = 1020;
+
 	float now_t;
 
 	Queue<Instruction> queue_inst;
@@ -115,7 +118,10 @@ int main(){
 		// y方向スライド
 		slider.write(inst.slider);
 		// ハンドのサーボ
-		servo.keep(phi.pos_next);
+		servo_duty = servo.keep(phi.pos_next);
+		// ファン
+		if (inst.suction == Mode::Hold)	fan_duty = fan.on(1300);
+		else fan_duty = fan.off();
 
 		// 現在値取得
 		r.pos_now = motor_r.get_now();
@@ -136,13 +142,19 @@ int main(){
 				y.cnt_arrive = 0;
 				z.cnt_arrive = 0;
 			}
+			// オーバーフロー対策
+			else if (queue_inst.length() == 1) {
+				x.cnt_arrive = 0;
+				y.cnt_arrive = 0;
+				z.cnt_arrive = 0;
+			}
 		}
 
 		if (has_arrived(x.cnt_arrive, y.cnt_arrive, z.cnt_arrive)) {
 			// リトライに備えて実行済みinstをバッファに保存
 			// 初期位置に戻ったらqueue_buffをクリア
 			if (inst.state == Mode::Init) {
-				queue_buff.clear();
+				if (queue_buff.length() > 0) queue_buff.clear();
 			}
 			else {
 				queue_buff.push(inst);
@@ -172,6 +184,7 @@ int main(){
 				rad2degree(theta.pos_now), rad2degree(theta.pos_next),
 				rad2degree(phi.pos_now), rad2degree(phi.pos_next));
 		pc.printf("duty: %1.4f %1.4f %1.4f  ", r.duty, theta.duty, phi.duty);
+		pc.printf("servo: %4d  fan: %4d  ", servo_duty, fan_duty);
 		pc.printf("\r\n");
 	}
 

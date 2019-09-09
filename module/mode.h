@@ -13,11 +13,12 @@ namespace Mode
 {
 	enum State
 	{
-		Init,
-		Stay,
-		OwnArea,
-		CommonArea,
-		ShootingBox
+		Init, // 初期位置
+		Stay, // 停止待機
+		Neutral, // コマンド待ち場所, 中継地点
+		OwnArea, // 自陣
+		CommonArea, // 共通エリア
+		ShootingBox // シューティングbox
 	};
 
 	enum Coordinate
