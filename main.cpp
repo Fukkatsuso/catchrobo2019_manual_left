@@ -117,8 +117,6 @@ int main(){
 		phi.duty = motor_phi.move_to(phi.pos_next);
 		// y方向スライド
 		slider.write(inst.slider);
-		// ハンドのサーボ
-		servo_duty = servo.keep(phi.pos_next);
 		// ファン
 		if (inst.suction == Mode::Hold)	fan_duty = fan.on(1300);
 		else fan_duty = fan.off();
@@ -127,6 +125,10 @@ int main(){
 		r.pos_now = motor_r.get_now();
 		theta.pos_now = motor_theta.get_now();
 		phi.pos_now = motor_phi.get_now();
+
+		// ハンドのサーボ
+		servo_duty = servo.keep(phi.pos_now);
+
 		polar2cartesian(r.pos_now, theta.pos_now, phi.pos_now, PHI_RADIUS,
 				&(x.pos_now), &(y.pos_now), &(z.pos_now));
 		x.pos_now += X_OFFSET;
