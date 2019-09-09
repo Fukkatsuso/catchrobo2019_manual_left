@@ -13,7 +13,7 @@ PolarArm catcher(X_OFFSET, Y_OFFSET, Z_OFFSET, PHI_RADIUS, SLIDER_OFFSET);
 
 JointMotor<FnkOut> motor_r(&pwm_r, &enc_r, 1);
 JointMotor<PwmOut> motor_theta(&pwm_theta, &enc_theta, 1);
-JointMotor<PwmOut> motor_phi(&pwm_phi, &enc_phi, 1);
+JointMotor<PwmOut> motor_phi(&pwm_phi, &enc_phi, -1);
 
 Timer pid_timer;
 Timer timer;
@@ -25,8 +25,10 @@ void led_all(int onoff)
 }
 
 
-#define BUFF_ARRIVE 3 // [mm]
-#define WAIT_ARRIVE 10
+#define BUFF_ARRIVE_X 15 // [mm]
+#define BUFF_ARRIVE_Y 10
+#define BUFF_ARRIVE_Z 15
+#define WAIT_ARRIVE 80
 inline bool has_arrived(int cnt_x, int cnt_y, int cnt_z)
 {
 	return ((cnt_x >= WAIT_ARRIVE) && (cnt_y >= WAIT_ARRIVE) && (cnt_z >= WAIT_ARRIVE));
@@ -62,9 +64,9 @@ int main(){
 	Monitor_cartesian y;
 	Monitor_cartesian z;
 
-	Monitor_polar r(0, 0, 0);
-	Monitor_polar theta(0, 0, 0);
-	Monitor_polar phi(0, 0, 0);
+	Monitor_polar r(0.009, 0, 0.00001);
+	Monitor_polar theta(0.9, 0, 0.06);
+	Monitor_polar phi(0.6, 0, 0.01);
 
 	float now_t;
 
@@ -102,9 +104,9 @@ int main(){
 		// 指令に従って次の位置を計算
 		catcher.calc_next();
 
-		r.pos_next = catcher.get_r_next();
+		r.pos_next = limit(catcher.get_r_next(), 651.0, R_OFFSET);
 		theta.pos_next = catcher.get_theta_next();
-		phi.pos_next = catcher.get_phi_next();
+		phi.pos_next = limit(catcher.get_phi_next(), M_PI, M_PI/2.0);
 
 		// 次の位置に移動
 		r.duty = motor_r.move_to(r.pos_next);
@@ -113,7 +115,7 @@ int main(){
 		// y方向スライド
 		slider.write(inst.slider);
 		// ハンドのサーボ
-		servo.keep(theta.pos_next);
+		servo.keep(phi.pos_next);
 
 		// 現在値取得
 		r.pos_now = motor_r.get_now();
@@ -125,13 +127,15 @@ int main(){
 		y.pos_now += Y_OFFSET;
 		z.pos_now += Z_OFFSET;
 
-		x.cnt_arrive = counter_update(x.cnt_arrive, x.pos_now, inst.x, BUFF_ARRIVE);
-		y.cnt_arrive = counter_update(y.cnt_arrive, y.pos_now, inst.y, BUFF_ARRIVE);
-		z.cnt_arrive = counter_update(z.cnt_arrive, z.pos_now, inst.z, BUFF_ARRIVE);
+		x.cnt_arrive = counter_update(x.cnt_arrive, x.pos_now, inst.x, BUFF_ARRIVE_X);
+		y.cnt_arrive = counter_update(y.cnt_arrive, y.pos_now, inst.y, BUFF_ARRIVE_Y);
+		z.cnt_arrive = counter_update(z.cnt_arrive, z.pos_now, inst.z, BUFF_ARRIVE_Z);
 		if (inst.state == Mode::Stay) {
-			x.cnt_arrive = 0;
-			y.cnt_arrive = 0;
-			z.cnt_arrive = 0;
+			if (now_t < inst.duration) {
+				x.cnt_arrive = 0;
+				y.cnt_arrive = 0;
+				z.cnt_arrive = 0;
+			}
 		}
 
 		if (has_arrived(x.cnt_arrive, y.cnt_arrive, z.cnt_arrive)) {
@@ -162,11 +166,12 @@ int main(){
 		}
 
 		pc.printf("now: %2.2f  ", now_t);
-		pc.printf("x: %4.1f   y: %4.1f  z: %4.1f  ", x.pos_now, y.pos_now, z.pos_now);
+		pc.printf("x: %4.1f->%4.1f   y: %4.1f->%4.1f  z: %4.1f->%4.1f  ", x.pos_now, inst.x, y.pos_now, inst.y, z.pos_now, inst.z);
 		pc.printf("r: %4.1f->%4.1f  theta: %3.1f->%3.1f  phi: %3.1f->%3.1f  ",
 				r.pos_now, r.pos_next,
 				rad2degree(theta.pos_now), rad2degree(theta.pos_next),
 				rad2degree(phi.pos_now), rad2degree(phi.pos_next));
+		pc.printf("duty: %1.4f %1.4f %1.4f  ", r.duty, theta.duty, phi.duty);
 		pc.printf("\r\n");
 	}
 

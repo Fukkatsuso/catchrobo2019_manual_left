@@ -20,7 +20,7 @@ Serial pc(USBTX, USBRX);
 
 //Pspad ps;
 
-FnkOut pwm_r(p25, p24);
+FnkOut pwm_r(p24, p25);
 PwmOut pwm_theta(p23);
 PwmOut pwm_phi(p22);
 
@@ -40,7 +40,7 @@ HandServo<SoftPWM> servo(p26, (SERVO_MAX-SERVO_MIN)/(M_PI), degree2rad(SERVO_OFF
 //rのピッチ円直径は30mm
 
 #define R_MM_PER_PULSE ((30.0 * M_PI) / 800.0)
-#define R_OFFSET 112 //[mm]
+#define R_OFFSET 112.0 //[mm]
 Encoder enc_r(p15, p16, R_MM_PER_PULSE, R_OFFSET);
 
 // 800pulse = phi:1/5回転 = phi:2PI/5rad
