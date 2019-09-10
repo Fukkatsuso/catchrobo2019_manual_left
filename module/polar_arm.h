@@ -27,8 +27,8 @@ class PolarArm
 {
 public:
 	PolarArm(float offset_x, float offset_y, float offset_z, float phi_radius, float offset_slider);
-	void restart(float target_x, float target_y, float target_z);
-	void set_target(float target_x, float target_y, float target_z);
+	void restart(float target_x, float target_y, float target_z, enum Mode::Slider slider);
+	void update_target(float target_x, float target_y, float target_z, enum Mode::Slider slider);
 	void set_duration(float duration);
 	void set_mode(enum Mode::Coordinate coord, enum Mode::Accelaration acc, enum Mode::Slider slider);
 

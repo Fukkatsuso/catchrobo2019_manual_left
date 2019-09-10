@@ -15,12 +15,12 @@ PolarArm::PolarArm(float offset_x, float offset_y, float offset_z, float phi_rad
 	y.target = INIT_Y - y_offset;
 	z.target = INIT_Z - z_offset;
 	mode_slider = Mode::Backward;
-	restart(INIT_X, INIT_Y, INIT_Z);
+	restart(INIT_X, INIT_Y, INIT_Z, Mode::Backward);
 }
 
 
 // 座標はフィールド基準
-void PolarArm::restart(float target_x, float target_y, float target_z)
+void PolarArm::restart(float target_x, float target_y, float target_z, enum Mode::Slider slider)
 {
 	// 初期位置の更新
 	x.start = x.target;
@@ -30,7 +30,7 @@ void PolarArm::restart(float target_x, float target_y, float target_z)
 
 	// 目標位置の更新
 	// offset処理も忘れずに
-	set_target(target_x, target_y, target_z);
+	update_target(target_x, target_y, target_z, slider);
 
 	clock.reset();
 	clock.start();
@@ -38,9 +38,10 @@ void PolarArm::restart(float target_x, float target_y, float target_z)
 
 
 // 座標はフィールド基準
-void PolarArm::set_target(float target_x, float target_y, float target_z)
+void PolarArm::update_target(float target_x, float target_y, float target_z, enum Mode::Slider slider)
 {
-	if (mode_slider == Mode::Forward) target_y -= slider_offset;
+	mode_slider = slider;
+	if (slider == Mode::Forward) target_y -= slider_offset;
 	x.target = target_x - x_offset;
 	y.target = target_y - y_offset;
 	z.target = target_z - z_offset;
