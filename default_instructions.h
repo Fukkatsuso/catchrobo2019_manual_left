@@ -24,96 +24,61 @@
 
 Instruction neutral_inst(float duration, enum Mode::Coordinate coord, enum Mode::Suction suction)
 {
-	return Instruction(220, 80, INIT_Z, duration, Mode::Neutral, coord, Mode::NonLinearAcc, suction, Mode::Backward);
+	return Instruction(X_OFFSET, 250, INIT_Z-30, duration,
+			Mode::Neutral, coord, Mode::NonLinearAcc, suction, Mode::Forward);
 }
 
-Instruction own_area_inst(float x, float y, float z, enum Mode::Accelaration acc, enum Mode::Slider slider)
+Instruction own_area_inst(float x, float y, float z, enum Mode::Accelaration acc)
 {
-	return Instruction(x, y, z, 2, Mode::OwnArea, Mode::Cartesian, acc, Mode::Release, slider);
+	return Instruction(x, y, z, 2,
+			Mode::OwnArea, Mode::Cartesian, acc, Mode::Release, Mode::Forward);
 }
 
 Instruction common_area_inst(float x, float y, float z, enum Mode::Accelaration acc)
 {
-	return Instruction(x, y, z, 2, Mode::CommonArea, Mode::Cartesian, acc, Mode::Release, Mode::Forward);
+	return Instruction(x, y, z, 2,
+			Mode::CommonArea, Mode::Cartesian, acc, Mode::Release, Mode::Forward);
 }
 
+Instruction go_fast_one_inst(float duration, enum Mode::Accelaration acc)
+{
+	return Instruction(X_OFFSET, 230, 170, duration,
+			Mode::OwnArea, Mode::Cartesian, acc, Mode::Release, Mode::Forward);
+}
+
+Instruction above_fast_one_box_inst(float duration, enum Mode::Coordinate coord, enum Mode::Suction suction)
+{
+	return Instruction(375, -170, 650, duration,
+			Mode::ShootingBox, coord, Mode::NonLinearAcc, suction, Mode::Backward);
+}
+
+Instruction above_box_front_inst(float duration, enum Mode::Coordinate coord, enum Mode::Suction suction)
+{
+	return Instruction(540, -145, 650, duration,
+			Mode::ShootingBox, coord, Mode::NonLinearAcc, suction, Mode::Forward);
+}
+
+Instruction above_box_rear_inst(float duration, enum Mode::Coordinate coord, enum Mode::Suction suction)
+{
+	return Instruction(540, -350, 650, duration,
+			Mode::ShootingBox, coord, Mode::NonLinearAcc, suction, Mode::Backward);
+}
+
+Instruction stay_inst(float x, float y, float z, float duration, enum Mode::Suction suction, enum Mode::Slider slider)
+{
+	return Instruction(x, y, z, duration,
+			Mode::Stay, Mode::Cartesian, Mode::LinearAcc, suction, slider);
+}
 
 // x, y, z, duration,
 //   state, coord, acc, suction, slider
-#define INST_NUM 1//11
+#define INST_NUM 1
 Instruction default_inst[INST_NUM] =
 {
 		// 初期化
 		Instruction(INIT_X,	INIT_Y,	INIT_Z,	1,
-				Mode::Init,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-		// 開始待ち
-//		Instruction(INIT_X,	INIT_Y,	INIT_Z,	8,
-//				Mode::Stay,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-//		neutral_inst(1.5, Mode::Polar, Mode::Release)
-//		// go
-//		Instruction(220,	50,	INIT_Z,	1,
-//				Mode::Neutral,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-//		Instruction(220,	120,	170,	2,
-//				Mode::OwnArea,	Mode::Cartesian,	Mode::LinearAcc, Mode::Release, Mode::Backward),
-//		Instruction(220, 	120,	170,	1.5,
-//				Mode::Stay,	Mode::Cartesian,	Mode::LinearAcc,	Mode::Hold,	Mode::Backward),
-//		// return
-//		Instruction(220,	50,	INIT_Z,	2,
-//				Mode::Neutral,	Mode::Cartesian,	Mode::LinearAcc, Mode::Hold, Mode::Backward),
-//		Instruction(504,	-160,	INIT_Z,	1,
-//				Mode::ShootingBox,	Mode::Polar,	Mode::NonLinearAcc, Mode::Hold, Mode::Backward),
-//		Instruction(485,	-154,	500,	1,
-//				Mode::ShootingBox,	Mode::Polar,	Mode::NonLinearAcc, Mode::Hold, Mode::Backward),
-//		Instruction(485,	-154,	500,	0.5,
-//				Mode::Stay,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-//		Instruction(504,	-160,	INIT_Z,	1,
-//				Mode::Init,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-//
-//		Instruction(220,	0,	INIT_Z,	1,
-//				Mode::Neutral,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
+				Mode::Init,	Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward)
 };
 
-
-#define FAST_ONE_GO_INST_NUM 2
-Instruction fast_one_go_inst[FAST_ONE_GO_INST_NUM] =
-{
-		neutral_inst(1.5, Mode::Polar, Mode::Release),
-		own_area_inst(220, 120, 160, Mode::NonLinearAcc, Mode::Backward)
-};
-
-#define FAST_ONE_RETURN_INST_NUM 6
-Instruction fast_one_return_inst[FAST_ONE_RETURN_INST_NUM] =
-{
-		neutral_inst(1.5, Mode::Cartesian, Mode::Hold),
-
-		Instruction(346,	-144,	INIT_Z,	1,
-				Mode::ShootingBox,	Mode::Polar,	Mode::NonLinearAcc, Mode::Hold, Mode::Backward),
-		Instruction(348,	-144,	561,	1,
-				Mode::ShootingBox,	Mode::Polar,	Mode::NonLinearAcc, Mode::Hold, Mode::Backward),
-		Instruction(348,	-144,	561,	0.5,
-				Mode::Stay,			Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-		Instruction(346,	-144,	INIT_Z,	1,
-				Mode::Init,			Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-
-		neutral_inst(1, Mode::Polar, Mode::Release)
-};
-
-
-#define PUT_WORK_INST_NUM 6
-Instruction put_work_inst[PUT_WORK_INST_NUM] =
-{
-		neutral_inst(2, Mode::Cartesian, Mode::Hold),
-
-		Instruction(504,	-160,	INIT_Z,	1,
-				Mode::ShootingBox,	Mode::Polar,	Mode::NonLinearAcc, Mode::Hold, Mode::Backward),
-		Instruction(485,	-154,	500,	1,
-				Mode::ShootingBox,	Mode::Polar,	Mode::NonLinearAcc, Mode::Hold, Mode::Backward),
-		Instruction(485,	-154,	500,	0.5,
-				Mode::Stay,			Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-		Instruction(504,	-160,	INIT_Z,	1,
-				Mode::Init,			Mode::Polar,	Mode::NonLinearAcc, Mode::Release, Mode::Backward),
-
-		neutral_inst(1, Mode::Polar, Mode::Release)
-};
 
 #endif /* DEFAULT_INSTRUCTIONS_H_ */

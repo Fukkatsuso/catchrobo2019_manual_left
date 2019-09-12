@@ -36,14 +36,13 @@ PwmOut pwm_phi(p22);
 
 DigitalOut slider(p5);
 DigitalOut one_holder(p6);
-DigitalOut work_holder(p20);
+DigitalOut work_wall(p20);
 DigitalOut shooter(p8);
 
 #define SERVO_OFFSET (M_PI/2.0)
 inline float degree2rad(float degree) { return M_PI * degree / 180.0; }
 inline float rad2degree(float rad) { return 180.0 * rad / M_PI; }
-//HandServo<SoftPWM> servo(p26, 0, M_PI/2.0, 950, 1800, SERVO_OFFSET);
-HandServo<SoftPWM> servo(p26, 0, M_PI/2.0, 900, 1750, SERVO_OFFSET);
+HandServo<SoftPWM> servo(p26, 0, M_PI/2.0, 1000, 1800, SERVO_OFFSET);
 
 Fan<SoftPWM> fan(p21);
 
