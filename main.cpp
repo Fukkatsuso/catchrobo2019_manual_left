@@ -24,9 +24,9 @@ void led_all(int onoff)
 	led1.write(onoff); led2.write(onoff); led3.write(onoff); led4.write(onoff);
 }
 
-#define X_ADJUST (x.pos_adjust/4)
-#define Y_ADJUST (y.pos_adjust/4)
-#define Z_ADJUST (z.pos_adjust/4)
+#define X_ADJUST (x.pos_adjust/2)
+#define Y_ADJUST (y.pos_adjust/2)
+#define Z_ADJUST (z.pos_adjust/2)
 
 #define BUFF_ARRIVE_X 15 // [mm]
 #define BUFF_ARRIVE_Y 10
