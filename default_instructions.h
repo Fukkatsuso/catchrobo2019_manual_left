@@ -54,13 +54,13 @@ Instruction above_fast_one_box_inst(float duration, enum Mode::Coordinate coord,
 
 Instruction above_box_front_inst(float duration, enum Mode::Coordinate coord, enum Mode::Suction suction)
 {
-	return Instruction(540, -145, 650, duration,
+	return Instruction(540, -145, 700, duration,
 			Mode::ShootingBox, coord, Mode::NonLinearAcc, suction, Mode::Forward);
 }
 
 Instruction above_box_rear_inst(float duration, enum Mode::Coordinate coord, enum Mode::Suction suction)
 {
-	return Instruction(540, -350, 650, duration,
+	return Instruction(540, -350, 700, duration,
 			Mode::ShootingBox, coord, Mode::NonLinearAcc, suction, Mode::Backward);
 }
 

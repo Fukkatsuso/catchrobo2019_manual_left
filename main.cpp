@@ -32,7 +32,7 @@ void led_all(int onoff)
 #define BUFF_ARRIVE_X 15 // [mm]
 #define BUFF_ARRIVE_Y 10
 #define BUFF_ARRIVE_Z 25
-#define WAIT_ARRIVE 60
+#define WAIT_ARRIVE 40
 inline bool has_arrived(int cnt_x, int cnt_y, int cnt_z)
 {
 	return ((cnt_x >= WAIT_ARRIVE) && (cnt_y >= WAIT_ARRIVE) && (cnt_z >= WAIT_ARRIVE));
@@ -131,7 +131,7 @@ int main(){
 
 	slider.write(0);
 	one_holder.write(0);
-	work_wall.write(1);
+	work_wall.write(0);
 	shooter.write(0);
 	led_all(0);
 
@@ -147,17 +147,17 @@ int main(){
 		y.pos_adjust += ps::left_y;
 		z.pos_adjust += ps::right_y;
 		if (ps::maru) {
-			if (inst.state == Mode::OwnArea || inst.state == Mode::CommonArea) {
-				inst.suction = (inst.suction == Mode::Hold ? Mode::Release : Mode::Hold);
-			}
-			else if (inst.state == Mode::ShootingBox) {
-				inst.suction = Mode::Release;
+			inst.suction = (inst.suction == Mode::Hold ? Mode::Release : Mode::Hold);
+			if (inst.state == Mode::ShootingBox) {
+				if (inst.suction == Mode::Hold) {
+					inst.suction = Mode::Release;
+					queue_inst.push(stay_inst(inst.x+X_ADJUST, inst.y+Y_ADJUST, inst.z+Z_ADJUST, 0.5, Mode::Release, inst.slider));
+	//				queue_inst.push(neutral_inst(1.5, Mode::Polar, Mode::Release));
+				}
 				if (is_first) {
 					timer_shooting.reset();
 					timer_shooting.start();
 				}
-				queue_inst.push(stay_inst(inst.x+X_ADJUST, inst.y+Y_ADJUST, inst.z+Z_ADJUST, 0.5, Mode::Release, inst.slider));
-				queue_inst.push(neutral_inst(2, Mode::Polar, Mode::Release));
 				x.cnt_arrive = WAIT_ARRIVE*2;
 				y.cnt_arrive = WAIT_ARRIVE*2;
 				z.cnt_arrive = WAIT_ARRIVE*2;
@@ -170,20 +170,34 @@ int main(){
 		}
 
 		// コントローラからqueue_instにpush
-		if (ps::start) { // 強制的にneutralへ・最初の1回は1個取り
-			queue_inst.push(neutral_inst(1.5, inst.coord, inst.suction));
+		if (ps::start && inst.suction == Mode::Release) { // 強制的にneutralへ・最初の1回は1個取り
 			if (is_first) {
+				queue_inst.push(neutral_inst(1.5, inst.coord, inst.suction));
 				queue_inst.push(go_fast_one_inst(2, Mode::NonLinearAcc));
 			}
-			x.cnt_arrive = WAIT_ARRIVE*2;
-			y.cnt_arrive = WAIT_ARRIVE*2;
-			z.cnt_arrive = WAIT_ARRIVE*2;
+			else {
+				queue_inst.pop();
+				queue_inst.push(neutral_inst(1.5, inst.coord, inst.suction));
+				queue_inst.push(neutral_inst(1.5, inst.coord, inst.suction));
+				x.pos_adjust = 0;
+				y.pos_adjust = 0;
+				z.pos_adjust = 0;
+				x.cnt_arrive = 0;
+				y.cnt_arrive = 0;
+				z.cnt_arrive = 0;
+				inst = queue_inst.front();
+				catcher.set_duration(inst.duration);
+				catcher.set_mode(inst.coord, inst.acc, inst.slider);
+				catcher.restart(inst.x, inst.y, inst.z, inst.slider);
+				timer.reset();
+				timer.start();
+			}
 		}
 		if (ps::batu && inst.suction == Mode::Release) { // 自陣へ向かう
 			// リトライとかで1個取りキャンセルするとき
 			if (is_first) is_first = false;
 			queue_inst.push(neutral_inst(1.5, Mode::Polar, Mode::Release));
-			queue_inst.push(own_area_inst(X_OFFSET, 230, 170, Mode::NonLinearAcc));
+			queue_inst.push(own_area_inst(X_OFFSET, 230, 150, Mode::NonLinearAcc));
 		}
 		if (ps::sankaku && inst.suction == Mode::Release) { // 共通エリアへ向かう
 			if (is_first) is_first = false;
@@ -194,10 +208,10 @@ int main(){
 			queue_inst.push(neutral_inst(2, Mode::Cartesian, Mode::Hold));
 			if (is_first) {
 				// 1個用の場所へ
-				queue_inst.push(above_fast_one_box_inst(1.5, Mode::Polar, Mode::Hold));
+				queue_inst.push(above_fast_one_box_inst(2, Mode::Polar, Mode::Hold));
 			}
 			else {
-				queue_inst.push(above_box_front_inst(1.5, Mode::Polar, Mode::Hold));
+				queue_inst.push(above_box_front_inst(2.5, Mode::Polar, Mode::Hold));
 			}
 			x.cnt_arrive = WAIT_ARRIVE*2;
 			y.cnt_arrive = WAIT_ARRIVE*2;
@@ -229,7 +243,7 @@ int main(){
 
 		r.pos_next = limit(catcher.get_r_next(), 651.0, R_OFFSET);
 		theta.pos_next = limit(catcher.get_theta_next(), M_PI, degree2rad(-39));
-		phi.pos_next = limit(catcher.get_phi_next(), M_PI, M_PI/2.0);
+		phi.pos_next = limit(catcher.get_phi_next(), degree2rad(177), M_PI/2.0);
 
 		// 次の位置に移動
 		r.duty = motor_r.move_to(r.pos_next);
@@ -249,7 +263,7 @@ int main(){
 		// シューティング
 		if (is_shooting) {
 			work_wall.write(1);
-			if (timer_shooting.read() > 2) shooter.write(1);
+			if (timer_shooting.read() > 1.5) shooter.write(1);
 		}
 
 		// 現在値取得
@@ -310,6 +324,7 @@ int main(){
 //		pc.printf("start:%d ", ps::start);
 //		pc.printf("maru:%d sankaku:%d sikaku:%d batu:%d ", ps::maru, ps::sankaku, ps::sikaku, ps::batu);
 //		pc.printf("up:%d down:%d ry:%d lx:%d ly:%d", ps::up, ps::down, ps::right_y, ps::left_x, ps::left_y);
+		pc.printf("holder: %d  ", one_holder.read());
 		pc.printf("\r\n");
 	}
 

@@ -25,7 +25,7 @@ public:
 
 	// duty : 1020 ~ 2020
 	int on(int max) {
-		duty += limit(max - duty, 2, -2);
+		duty += limit(max - duty, 4, -4);
 		duty = limit(duty, max, 1020);
 		pwm->pulsewidth_us(duty);
 		return duty;
