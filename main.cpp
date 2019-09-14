@@ -56,6 +56,9 @@ void ps_command()
 	ps::R2 = pspad.BUTTON.BIT.R2;
 	ps::L1 = pspad.BUTTON.BIT.L1;
 	ps::L2 = pspad.BUTTON.BIT.L2;
+	ps::select = pspad.BUTTON.BIT.SELECT;
+	ps::R3 = pspad.BUTTON.BIT.R3;
+	ps::L3 = pspad.BUTTON.BIT.L3;
 	// 調整
 	if (abs(ps::left_x) < STICK_ZERO) ps::left_x = 0;
 	if (abs(ps::left_y) < STICK_ZERO) ps::left_y = 0;
@@ -154,10 +157,10 @@ int main(){
 					queue_inst.push(stay_inst(inst.x+X_ADJUST, inst.y+Y_ADJUST, inst.z+Z_ADJUST, 0.5, Mode::Release, inst.slider));
 	//				queue_inst.push(neutral_inst(1.5, Mode::Polar, Mode::Release));
 				}
-				if (is_first) {
-					timer_shooting.reset();
-					timer_shooting.start();
-				}
+//				if (is_first) {
+//					timer_shooting.reset();
+//					timer_shooting.start();
+//				}
 				x.cnt_arrive = WAIT_ARRIVE*2;
 				y.cnt_arrive = WAIT_ARRIVE*2;
 				z.cnt_arrive = WAIT_ARRIVE*2;
@@ -168,9 +171,21 @@ int main(){
 			timer_shooting.reset();
 			timer_shooting.start();
 		}
+		if (ps::select) {
+			is_first = false;
+		}
+		one_holder.write(ps::select);
+		// シューティングに関するリセット
+		if (ps::R3 && ps::L3) {
+			is_first = true;
+			is_shooting = false;
+			work_wall.write(0);
+			timer_shooting.reset();
+			timer_shooting.stop();
+		}
 
 		// コントローラからqueue_instにpush
-		if (ps::start && inst.suction == Mode::Release) { // 強制的にneutralへ・最初の1回は1個取り
+		if (ps::start && inst.suction == Mode::Release) { // 強制的にneutralへ・startで1個取りモード
 			if (is_first) {
 				queue_inst.push(neutral_inst(1.5, inst.coord, inst.suction));
 				queue_inst.push(go_fast_one_inst(2, Mode::NonLinearAcc));
@@ -197,12 +212,12 @@ int main(){
 			// リトライとかで1個取りキャンセルするとき
 			if (is_first) is_first = false;
 			queue_inst.push(neutral_inst(1.5, Mode::Polar, Mode::Release));
-			queue_inst.push(own_area_inst(X_OFFSET, 230, 150, Mode::NonLinearAcc));
+			queue_inst.push(own_area_inst(X_OFFSET, 230, 140, Mode::NonLinearAcc));
 		}
 		if (ps::sankaku && inst.suction == Mode::Release) { // 共通エリアへ向かう
 			if (is_first) is_first = false;
 			queue_inst.push(neutral_inst(1.5, Mode::Polar, Mode::Release));
-			queue_inst.push(common_area_inst(X_OFFSET, 500, 630, Mode::NonLinearAcc));
+			queue_inst.push(common_area_inst(X_OFFSET, 500, 620, Mode::NonLinearAcc));
 		}
 		if (ps::sikaku && (inst.state == Mode::OwnArea || inst.state == Mode::CommonArea) && inst.suction == Mode::Hold) { // 集荷
 			queue_inst.push(neutral_inst(2, Mode::Cartesian, Mode::Hold));
@@ -255,11 +270,11 @@ int main(){
 		if (inst.suction == Mode::Hold)	fan_duty = fan.on(1350 + fan_adjust);
 		else fan_duty = fan.off();
 		// 1個シューティング
-		if (is_first && timer_shooting.read() > 2) {
-			one_holder.write(1);
-			timer_shooting.stop();
-			is_first = false;
-		}
+//		if (is_first && timer_shooting.read() > 2) {
+//			one_holder.write(1);
+//			timer_shooting.stop();
+//			is_first = false;
+//		}
 		// シューティング
 		if (is_shooting) {
 			work_wall.write(1);
@@ -325,6 +340,7 @@ int main(){
 //		pc.printf("maru:%d sankaku:%d sikaku:%d batu:%d ", ps::maru, ps::sankaku, ps::sikaku, ps::batu);
 //		pc.printf("up:%d down:%d ry:%d lx:%d ly:%d", ps::up, ps::down, ps::right_y, ps::left_x, ps::left_y);
 		pc.printf("holder: %d  ", one_holder.read());
+//		pc.printf("r3: %d  l3: %d  ", ps::R3, ps::L3);
 		pc.printf("\r\n");
 	}
 

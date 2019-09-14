@@ -28,6 +28,8 @@ int maru, batu, sankaku, sikaku;
 int up, down;
 int left_x, left_y, right_y;
 int R1, R2, L1, L2;
+int select;
+int R3, L3;
 }
 
 FnkOut pwm_r(p24, p25);
