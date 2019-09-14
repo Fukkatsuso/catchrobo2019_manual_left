@@ -89,7 +89,7 @@ void cartesian2polar(float x, float y, float z, float phi_radius, float* r, floa
 	// phiに回転半径が存在するので極座標とは異なる計算法になる
 	double R = sqrt2(x, y);
 	double D = sqrt3(x, y, z);
-	*phi = acos(- phi_radius / D) - atan2(z, R);
+	*phi = acos(limit(- phi_radius / D, 1.0f, -1.0f)) - atan2(z, R);
 	*r = (R + phi_radius * cos(*phi)) / sin(*phi);
 }
 
