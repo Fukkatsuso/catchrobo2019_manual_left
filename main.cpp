@@ -106,6 +106,10 @@ int main(){
 	int fan_duty = 1020;
 	int fan_adjust = 0;
 
+	int x_adjust = 0;
+	int y_adjust = 0;
+	int z_adjust = 0;
+
 	float now_t;
 	bool is_first = true; // 最初のneutral指令
 	bool is_shooting = false;
@@ -132,6 +136,10 @@ int main(){
 	catcher.set_duration(inst.duration);
 	catcher.set_mode(inst.coord, inst.acc, inst.slider);
 
+	x.pos_now = INIT_X;
+	y.pos_now = INIT_Y;
+	z.pos_now = INIT_Z;
+
 	slider.write(0);
 	one_holder.write(0);
 	work_wall.write(0);
@@ -149,12 +157,19 @@ int main(){
 		x.pos_adjust += ps::left_x;
 		y.pos_adjust += ps::left_y;
 		z.pos_adjust += ps::right_y;
+		x_adjust = X_ADJUST;
+		y_adjust = Y_ADJUST;
+		z_adjust = Z_ADJUST;
+		// limit
+		if (inst.state == Mode::OwnArea) {
+			z_adjust = limit(z_adjust, (int)(INIT_Z-inst.z), (int)(100-inst.z));
+		}
 		if (ps::maru) {
 			inst.suction = (inst.suction == Mode::Hold ? Mode::Release : Mode::Hold);
 			if (inst.state == Mode::ShootingBox) {
 				if (inst.suction == Mode::Hold) {
 					inst.suction = Mode::Release;
-					queue_inst.push(stay_inst(inst.x+X_ADJUST, inst.y+Y_ADJUST, inst.z+Z_ADJUST, 0.5, Mode::Release, inst.slider));
+					queue_inst.push(stay_inst(inst.x+x_adjust, inst.y+y_adjust, inst.z+z_adjust, 0.5, Mode::Release, inst.slider));
 	//				queue_inst.push(neutral_inst(1.5, Mode::Polar, Mode::Release));
 				}
 //				if (is_first) {
@@ -253,7 +268,7 @@ int main(){
 		now_t = timer.read();
 
 		// 指令に従って次の位置を計算
-		catcher.update_target(inst.x+X_ADJUST, inst.y+Y_ADJUST, inst.z+Z_ADJUST, inst.slider);
+		catcher.update_target(inst.x+x_adjust, inst.y+y_adjust, inst.z+z_adjust, inst.slider);
 		catcher.calc_next();
 
 		r.pos_next = limit(catcher.get_r_next(), 651.0, R_OFFSET);
@@ -267,7 +282,7 @@ int main(){
 		// y方向スライド
 		slider.write(inst.slider);
 		// ファン
-		if (inst.suction == Mode::Hold)	fan_duty = fan.on(1350 + fan_adjust);
+		if (inst.suction == Mode::Hold)	fan_duty = fan.on(1400 + fan_adjust);
 		else fan_duty = fan.off();
 		// 1個シューティング
 //		if (is_first && timer_shooting.read() > 2) {
@@ -297,9 +312,9 @@ int main(){
 		z.pos_now += Z_OFFSET;
 		if (inst.slider == Mode::Forward) y.pos_now += SLIDER_OFFSET;
 
-		x.cnt_arrive = limit(counter_update(x.cnt_arrive, x.pos_now, inst.x+X_ADJUST, BUFF_ARRIVE_X), WAIT_ARRIVE+10, 0);
-		y.cnt_arrive = limit(counter_update(y.cnt_arrive, y.pos_now, inst.y+Y_ADJUST, BUFF_ARRIVE_Y), WAIT_ARRIVE+10, 0);
-		z.cnt_arrive = limit(counter_update(z.cnt_arrive, z.pos_now, inst.z+Z_ADJUST, BUFF_ARRIVE_Z), WAIT_ARRIVE+10, 0);
+		x.cnt_arrive = limit(counter_update(x.cnt_arrive, x.pos_now, inst.x+x_adjust, BUFF_ARRIVE_X), WAIT_ARRIVE+10, 0);
+		y.cnt_arrive = limit(counter_update(y.cnt_arrive, y.pos_now, inst.y+y_adjust, BUFF_ARRIVE_Y), WAIT_ARRIVE+10, 0);
+		z.cnt_arrive = limit(counter_update(z.cnt_arrive, z.pos_now, inst.z+z_adjust, BUFF_ARRIVE_Z), WAIT_ARRIVE+10, 0);
 		if (inst.state == Mode::Stay) {
 			if (now_t < inst.duration) {
 				x.cnt_arrive = 0;
@@ -329,7 +344,7 @@ int main(){
 
 		pc.printf("now: %2.2f  q: %d  ", now_t, queue_inst.length());
 		pc.printf("x: %4.1f->%4.1f   y: %4.1f->%4.1f  z: %4.1f->%4.1f  ",
-				x.pos_now, inst.x+X_ADJUST, y.pos_now, inst.y+Y_ADJUST, z.pos_now, inst.z+Z_ADJUST);
+				x.pos_now, inst.x+x_adjust, y.pos_now, inst.y+y_adjust, z.pos_now, inst.z+z_adjust);
 		pc.printf("r: %4.1f->%4.1f  theta: %3.1f->%3.1f  phi: %3.1f->%3.1f  ",
 				r.pos_now, r.pos_next,
 				rad2degree(theta.pos_now), rad2degree(theta.pos_next),
